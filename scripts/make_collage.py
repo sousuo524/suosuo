@@ -7,35 +7,43 @@ from PIL import Image
 
 CANVAS_W = 1200
 CANVAS_H = 630
+GUTTER = 6  # 图片之间的细白边（像素）
+
+
+def _cover_crop(img: Image.Image, target_w: int, target_h: int) -> Image.Image:
+    """居中裁剪，铺满格子，不留黑边。"""
+    src_w, src_h = img.size
+    scale = max(target_w / src_w, target_h / src_h)
+    new_w = max(1, int(src_w * scale))
+    new_h = max(1, int(src_h * scale))
+    resized = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+    left = (new_w - target_w) // 2
+    top = (new_h - target_h) // 2
+    return resized.crop((left, top, left + target_w, top + target_h))
 
 
 def make_collage(image_paths: list[Path], output: Path) -> None:
     if len(image_paths) != 4:
         raise ValueError("需要恰好 4 张图片")
 
-    cell_w = CANVAS_W // 2
-    cell_h = CANVAS_H // 2
-    canvas = Image.new("RGB", (CANVAS_W, CANVAS_H), (20, 20, 20))
+    cell_w = (CANVAS_W - GUTTER) // 2
+    cell_h = (CANVAS_H - GUTTER) // 2
+    canvas = Image.new("RGB", (CANVAS_W, CANVAS_H), (255, 255, 255))
 
     positions = [
         (0, 0),
-        (cell_w, 0),
-        (0, cell_h),
-        (cell_w, cell_h),
+        (cell_w + GUTTER, 0),
+        (0, cell_h + GUTTER),
+        (cell_w + GUTTER, cell_h + GUTTER),
     ]
 
     for path, (x, y) in zip(image_paths, positions, strict=True):
         with Image.open(path) as img:
-            img = img.convert("RGB")
-            img.thumbnail((cell_w, cell_h), Image.Resampling.LANCZOS)
-            tile = Image.new("RGB", (cell_w, cell_h), (30, 30, 30))
-            offset_x = (cell_w - img.width) // 2
-            offset_y = (cell_h - img.height) // 2
-            tile.paste(img, (offset_x, offset_y))
+            tile = _cover_crop(img.convert("RGB"), cell_w, cell_h)
             canvas.paste(tile, (x, y))
 
     output.parent.mkdir(parents=True, exist_ok=True)
-    canvas.save(output, "JPEG", quality=88)
+    canvas.save(output, "JPEG", quality=90)
 
 
 def pick_images(images_dir: Path, count: int = 4) -> list[Path]:
