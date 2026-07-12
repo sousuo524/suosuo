@@ -1,6 +1,8 @@
 {
-  "last_id": 0,
-  "today": "",
-  "today_count": 0,
-  "posted_ids": []
+  "last_id": 1,
+  "today": "2026-07-12",
+  "today_count": 1,
+  "posted_ids": [
+    "001"
+  ]
 }
