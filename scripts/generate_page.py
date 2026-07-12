@@ -11,20 +11,24 @@ def build_page(
     tg_link: str,
     output: Path,
 ) -> None:
+    desc_block = ""
+    if description.strip():
+        desc_block = f"""
+  <meta name="twitter:description" content="{description}" />
+  <meta property="og:description" content="{description}" />"""
+
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{title}</title>
+  <title>{title or " "}</title>
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{title}" />
-  <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{cover_url}" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="{title}" />
-  <meta property="og:description" content="{description}" />
-  <meta property="og:image" content="{cover_url}" />
+  <meta property="og:image" content="{cover_url}" />{desc_block}
   <meta http-equiv="refresh" content="0;url={tg_link}" />
   <script>location.replace("{tg_link}");</script>
 </head>

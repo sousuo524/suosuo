@@ -77,8 +77,8 @@ def create_one_post(settings: Settings) -> dict:
 
     build_page(
         page_id=page_id,
-        title="今日份福利已更新 🔥",
-        description=caption,
+        title=" ",
+        description="",
         cover_url=cover_url,
         tg_link=settings.tg_link,
         output=page_path,
